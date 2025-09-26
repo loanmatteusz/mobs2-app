@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/internal/vehicles', [VehicleController::class, 'internalIndex']);
+
 Route::middleware('auth:api')->get('/me', function (Request $request) {
     return $request->user();
 });

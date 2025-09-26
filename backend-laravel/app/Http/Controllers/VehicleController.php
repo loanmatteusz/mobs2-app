@@ -97,4 +97,19 @@ class VehicleController extends Controller
         $vehicle->delete();
         return response()->noContent();
     }
+
+    /**
+     * Internal route to NestJs Job get Vehicle Ids
+     */
+    public function internalIndex(Request $request)
+    {
+        $secret = $request->query('secret');
+
+        if ($secret !== env('INTERNAL_API_SECRET')) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $vehicles = Vehicle::all(['id']);
+        return response()->json($vehicles);
+    }
 }
