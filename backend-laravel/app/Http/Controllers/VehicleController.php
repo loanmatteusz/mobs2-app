@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class VehicleController extends Controller
 {
@@ -29,7 +30,19 @@ class VehicleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $vehicle = $request->validate([
+            'brand' => ['required', 'string', 'max:100'],
+            'model' => ['required', 'string', 'max:100'],
+            'plate' => ['required', 'string', 'max:20', Rule::unique('vehicles', 'plate')],
+            'year' => ['required', 'integer', 'digits:4', 'min:1900', 'max:' . (date('Y') + 1)],
+        ]);
+
+        $vehicleCreated = Vehicle::create($vehicle);
+
+        return response()->json([
+            'message' => 'Vehicle created successfully',
+            'vehicle' => $vehicleCreated,
+        ], 201);
     }
 
     /**
@@ -37,7 +50,9 @@ class VehicleController extends Controller
      */
     public function show(Vehicle $vehicle)
     {
-        //
+        return response()->json([
+            'vehicle' => $vehicle,
+        ]);
     }
 
     /**
@@ -53,7 +68,25 @@ class VehicleController extends Controller
      */
     public function update(Request $request, Vehicle $vehicle)
     {
-        //
+        $validated = $request->validate([
+            'brand' => ['sometimes', 'required', 'string', 'max:100'],
+            'model' => ['sometimes', 'required', 'string', 'max:100'],
+            'plate' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('vehicles', 'plate')->ignore($vehicle),
+            ],
+            'year' => ['sometimes', 'required', 'integer', 'digits:4', 'min:1900', 'max:' . (date('Y') + 1)],
+        ]);
+
+        $vehicle->update($validated);
+
+        return response()->json([
+            'message' => 'Vehicle updated successfully',
+            'vehicle' => $vehicle,
+        ], 200);
     }
 
     /**
@@ -61,6 +94,7 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        //
+        $vehicle->delete();
+        return response()->noContent();
     }
 }
