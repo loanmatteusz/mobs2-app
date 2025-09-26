@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: mobs2-db
+    environment:
+      POSTGRES_USER: mobs2
+      POSTGRES_PASSWORD: mobs2
+      POSTGRES_DB: mobs2
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    networks:
+      - mobs2-net
+
+  laravel:
+    build: ./backend-laravel
+    container_name: mobs2-laravel
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: mobs2
+      DB_USERNAME: mobs2
+      DB_PASSWORD: mobs2
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - mobs2-net
+
+  nest:
+    build: ./backend-nest
+    container_name: mobs2-nest
+    ports:
+      - "3000:3000"
+    networks:
+      - mobs2-net
+
+  vue:
+    build: ./frontend-vue
+    container_name: mobs2-vue
+    ports:
+      - "5173:5173"
+    networks:
+      - mobs2-net
+
+networks:
+  mobs2-net:
+    driver: bridge
