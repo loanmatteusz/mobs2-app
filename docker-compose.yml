@@ -13,6 +13,20 @@ services:
     networks:
       - mobs2-net
 
+  db_test:
+    image: postgres:15
+    container_name: mobs2-db-test
+    environment:
+      POSTGRES_USER: mobs2_test
+      POSTGRES_PASSWORD: mobs2_test
+      POSTGRES_DB: mobs2_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./db-data-test:/var/lib/postgresql/data
+    networks:
+      - mobs2-net
+
   laravel:
     build: ./backend-laravel
     container_name: mobs2-laravel
