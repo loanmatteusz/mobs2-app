@@ -42,10 +42,13 @@ export class TelemetrySeederService implements OnModuleInit {
         if (this.vehicleIds.length === 0) return;
 
         for (const vehicleId of this.vehicleIds) {
+            const base = { lat: -18.8910, lng: -48.2850 }; // Av. Cesário Crosara
+            const coords = this.randomCoordinate(base.lat, base.lng, 100);
+
             const dto: CreateTelemetryDto = {
                 vehicleId,
-                latitude: this.randomCoordinate(-23.55),
-                longitude: this.randomCoordinate(-46.63),
+                latitude: coords.lat,
+                longitude: coords.lng,
                 speed: parseFloat((Math.random() * 120).toFixed(1)),
                 fuel: parseFloat((Math.random() * 100).toFixed(1)),
                 timestamp: new Date().toISOString(),
@@ -60,7 +63,9 @@ export class TelemetrySeederService implements OnModuleInit {
         }
     }
 
-    private randomCoordinate(base: number, jitterMeters = 50) {
-        return base + (Math.random() - 0.5) * (jitterMeters / 111000);
+    private randomCoordinate(baseLat: number, baseLng: number, jitterMeters = 50) {
+        const lat = baseLat + (Math.random() - 0.5) * (jitterMeters / 111000);
+        const lng = baseLng + (Math.random() - 0.5) * (jitterMeters / (111000 * Math.cos(baseLat * Math.PI / 180)));
+        return { lat, lng };
     }
 }
