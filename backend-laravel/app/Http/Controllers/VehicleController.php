@@ -11,9 +11,27 @@ class VehicleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $vehicles = Vehicle::paginate(10);
+        $query = Vehicle::query();
+
+        if ($request->filled('brand')) {
+            $query->where('brand', 'ilike', "%{$request->brand}%");
+        }
+
+        if ($request->filled('model')) {
+            $query->where('model', 'ilike', "%{$request->model}%");
+        }
+
+        if ($request->filled('plate')) {
+            $query->where('plate', 'ilike', "%{$request->plate}%");
+        }
+
+        if ($request->filled('year')) {
+            $query->where('year', 'ilike', "%{$request->year}%");
+        }
+
+        $vehicles = $query->paginate(10);
         return response()->json($vehicles);
     }
 
