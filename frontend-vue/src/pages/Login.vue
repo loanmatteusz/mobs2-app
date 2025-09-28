@@ -4,22 +4,31 @@
   import { RouterLink, useRouter } from "vue-router";
   import { useToast } from "vue-toastification";
   import Logo from "@/assets/vue.svg";
+  import { authService } from "@/services/auth.service";
 
   const state = ref({
     email: "",
     password: "",
   });
 
+  const error = ref("");
+  const loading = ref(false);
+
   const router = useRouter();
   const toast = useToast();
 
-  function login({ email, password }: typeof state.value) {
-    if (email === "test@mail.com" && password === "123") {
-      localStorage.setItem("token", "true");
-      toast.success("Login realizado com sucesso!");
-      router.push("/dashboard");
-    } else {
+  async function login({ email, password }: typeof state.value) {
+    loading.value = true;
+    try {
+      const { access_token: accessToken } = await authService.login({ email, password });
+      console.log({ accessToken });
+      localStorage.setItem("access_token", accessToken);
+      router.push('/maps');
+    } catch (err) {
+      error.value = "Invalid credentials";
       toast.error("Email ou senha incorretos!");
+    } finally {
+      loading.value = false;
     }
   }
 
@@ -69,9 +78,10 @@
         </div>
       </div>
 
-      <button type="submit" class="w-full p-3 mt-4 rounded-lg cursor-pointer text-sm font-bold bg-[#e0e0e0] border-[#e0e0e0] text-[#767676] hover:bg-[#f1f1f1]">
-        Acessar conta
+      <button :disabled="loading" type="submit" class="w-full p-3 mt-4 rounded-lg cursor-pointer text-sm font-bold bg-[#e0e0e0] border-[#e0e0e0] text-[#767676] hover:bg-[#f1f1f1]">
+        {{ loading ? "Entrando..." : "Acessar conta" }}
       </button>
+
 
       <RouterLink to="/register" class="text-white text-center underline">
         Criar uma nova conta

@@ -40,14 +40,14 @@ const router = createRouter({
 	routes,
 });
 
-router.beforeEach((to, from, next) => {
-	const token = localStorage.getItem("token");
+router.beforeEach((to, _, next) => {
+	const token = localStorage.getItem("access_token");
 
 	if (to.meta.requiresAuth && !token) {
 		next({ path: "/login" });
 	}
 	else if ((to.path === "/login" || to.path === "/register") && token) {
-		next({ path: "/dashboard" });
+		next({ path: "/maps" });
 	}
 	else {
 		next();

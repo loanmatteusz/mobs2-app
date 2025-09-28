@@ -32,7 +32,7 @@
   const router = useRouter();
 
   function signOut() {
-    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
     router.push("/login");
   }
 
