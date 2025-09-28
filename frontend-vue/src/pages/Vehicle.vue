@@ -19,8 +19,8 @@
 	import { useToast } from "vue-toastification";
 	import { createColumns } from "@/components/vehicles/columns";
 	import DataTable from "@/components/vehicles/data-table.vue";
-	//import EditVehicleModal from "@/components/modals/vehicles/EditVehicleModal.vue";
-	//import NewVehicleModal from "@/components/modals/vehicles/NewVehicleModal.vue";
+	import EditVehicleModal from "@/components/modals/vehicles/EditVehicleModal.vue";
+	import NewVehicleModal from "@/components/modals/vehicles/NewVehicleModal.vue";
 	import { Button } from "@/components/ui/button";
 	import {
 		DropdownMenu,
@@ -247,7 +247,7 @@
     </div>
   </div>
 
-  <!-- <NewVehicleModal
+  <NewVehicleModal
     v-model:open="isCreateOpen"
     @create="handleCreateVehicle"
   />
@@ -256,5 +256,5 @@
     v-model:open="isEditOpen"
     :vehicle="vehicleToEdit"
     @save="handleEditVehicle"
-  /> -->
+  />
 </template>

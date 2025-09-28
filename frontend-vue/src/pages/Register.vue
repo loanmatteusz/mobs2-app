@@ -2,6 +2,8 @@
   import { GoalIcon } from "lucide-vue-next";
   import { reactive } from "vue";
   import { RouterLink, useRouter } from "vue-router";
+  import { useToast } from "vue-toastification";
+  import { authService } from "@/services/auth.service";
   import Logo from "@/assets/vue.svg";
 
   const state = reactive({
@@ -11,22 +13,25 @@
   });
 
   const router = useRouter();
+  const toast = useToast();
 
-  async function register({ name, email, password }: typeof state) {
-    if (!name || !email || !password) {
-      alert("Preencha todos os campos!");
-      return false;
+  async function register(data: typeof state) {
+    try {
+      const { access_token: accessToken } = await authService.register({...data, password_confirmation: data.password}); // autoconfirmação
+      localStorage.setItem("access_token", accessToken);
+      router.push("/maps");
+      return true;
+    } catch (err) {
+      toast.error("Erro ao tentar criar uma conta");
     }
-
-    localStorage.setItem("token", "true");
-    return true;
   }
 
   async function onSubmit() {
-    const success = await register(state);
-    if (success) {
-      router.push("/dashboard");
+    if (!state.name || !state.email || !state.password) {
+        alert("Preencha todos os campos!");
+        return false;
     }
+    await register(state);
   }
 </script>
 
