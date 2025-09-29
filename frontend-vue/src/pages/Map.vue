@@ -1,11 +1,11 @@
 <script setup lang="ts">
+  import { ref, onMounted } from "vue"
   import Card from "@/components/ui/card/Card.vue";
-import CardContent from "@/components/ui/card/CardContent.vue";
-import CardHeader from "@/components/ui/card/CardHeader.vue";
-import CardTitle from "@/components/ui/card/CardTitle.vue";
-import { telemetryService } from "@/services/telemetry.service";
+  import CardContent from "@/components/ui/card/CardContent.vue";
+  import CardHeader from "@/components/ui/card/CardHeader.vue";
+  import CardTitle from "@/components/ui/card/CardTitle.vue";
+  import { telemetryService } from "@/services/telemetry.service";
   import { Telemetry } from "@/types/telemetry";
-  import { ref, onMounted, watch } from "vue"
 
   const mapRef = ref<HTMLDivElement | null>(null)
   const mapError = ref(false);
@@ -58,20 +58,24 @@ import { telemetryService } from "@/services/telemetry.service";
     document.head.appendChild(script);
 
     async function initMap() {
-      const res = await telemetryService.getLastByVehicleId(vehicleId);
-      vehicleTelemetry.value = res.data[0];
-      map = new google.maps.Map(mapRef.value!, {
-        center: { lat: -18.8910, lng: -48.2850 },
-        zoom: 18,
-      })
-
-      vehicleMarker = new google.maps.Marker({
-        position: { lat: -18.8910, lng: -48.2850 },
-        map,
-        title: `Veículo ${vehicleId}`,
-      });
-
-      setInterval(updateVehiclePosition, 1000);
+      try {
+        const res = await telemetryService.getLastByVehicleId(vehicleId);
+        vehicleTelemetry.value = res.data[0];
+        map = new google.maps.Map(mapRef.value!, {
+          center: { lat: -18.8910, lng: -48.2850 },
+          zoom: 18,
+        })
+  
+        vehicleMarker = new google.maps.Marker({
+          position: { lat: -18.8910, lng: -48.2850 },
+          map,
+          title: `Veículo ${vehicleId}`,
+        });
+  
+        setInterval(updateVehiclePosition, 1000);
+      } catch (err) {
+        mapError.value = true;
+      }
     }
   });
 </script>

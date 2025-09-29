@@ -16,7 +16,7 @@
   }>();
   const emit = defineEmits<{
     (e: "update:open", value: boolean): void;
-    (e: "create", epi: Omit<Vehicle, "id">): void;
+    (e: "create", vehicle: Omit<Vehicle, "id">): void;
   }>();
 
   const form = ref<Omit<Vehicle, "id">>({

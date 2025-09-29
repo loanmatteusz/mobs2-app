@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import PrivateLayout from "@/layouts/PrivateLayout.vue";
 import PublicLayout from "@/layouts/PublicLayout.vue";
-import Dashboard from "@/pages/Dashboard.vue";
 import Vehicle from "@/pages/Vehicle.vue";
 import Login from "@/pages/Login.vue";
 import Register from "@/pages/Register.vue";
@@ -11,8 +10,8 @@ const routes = [
 	{
 		path: "/",
 		redirect: () => {
-			const token = localStorage.getItem("token");
-			return token ? "/dashboard" : "/login";
+			const token = localStorage.getItem("access_token");
+			return token ? "/maps" : "/login";
 		},
 	},
 	{
@@ -28,7 +27,6 @@ const routes = [
 		component: PrivateLayout,
 		meta: { requiresAuth: true },
 		children: [
-			{ path: "dashboard", name: "Dashboard", component: Dashboard },
 			{ path: "maps", name: "Map", component: Map },
 			{ path: "vehicles", name: "Vehicle", component: Vehicle },
 		],

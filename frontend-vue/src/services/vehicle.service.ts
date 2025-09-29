@@ -26,13 +26,13 @@ export const vehicleService = {
         return response.data;
     },
 
-    async create(epi: Partial<Vehicle>): Promise<Vehicle> {
-        const response = await api.post("/vehicles", epi);
+    async create(vehicle: Partial<Vehicle>): Promise<Vehicle> {
+        const response = await api.post("/vehicles", vehicle);
         return response.data;
     },
 
-    async update(id: string, epi: Partial<Vehicle>): Promise<Vehicle> {
-        const response = await api.put(`/vehicles/${id}`, epi);
+    async update(id: string, vehicle: Partial<Vehicle>): Promise<Vehicle> {
+        const response = await api.put(`/vehicles/${id}`, vehicle);
         return response.data;
     },
 
