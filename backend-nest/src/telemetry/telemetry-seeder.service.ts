@@ -6,12 +6,17 @@ import axios from "axios";
 import { ConfigService } from "@nestjs/config";
 import { telemetryPaths } from "src/mocks/path";
 
+type Vehicle = {
+    id: string;
+    plate: string;
+}
+
 @Injectable()
 export class TelemetrySeederService implements OnModuleInit {
     private readonly logger = new Logger(TelemetrySeederService.name);
 
     public pathIdx: number = 0;
-    private vehicleIds: string[] = [];
+    private vehicles: Vehicle[] = [];
 
     constructor(
         private readonly telemetryService: TelemetryService,
@@ -22,6 +27,7 @@ export class TelemetrySeederService implements OnModuleInit {
         await this.loadVehicleIds();
     }
 
+    
     private async loadVehicleIds() {
         try{
             const laravelUrl = this.configService.get<string>('LARAVEL_BASE_URL');
@@ -31,19 +37,19 @@ export class TelemetrySeederService implements OnModuleInit {
                     Accept: 'application/json',
                 }
             });
-            this.vehicleIds = response.data.map((v: any) => v.id);
-            this.logger.log(`Vehicle IDs loaded: ${this.vehicleIds.join(', ')}`);
+            this.vehicles = response.data.map((v: Vehicle) => ({ id: v.id, plate: v.plate }));
+            this.logger.log(`Vehicle IDs loaded: ${this.vehicles.map(v => v.id).join(', ')}`);
         } catch(err) {
             this.logger.error('Error to find vehicleIds of Laravel API', err.message);
-            this.vehicleIds = ['01999728-bcfa-7060-a49f-4e4fd2932c03'];
+            this.vehicles = [{id: '01999728-bcfa-7060-a49f-4e4fd2932c03', plate: "BRA1010"}];
         }
     }
 
     @Interval(5000)
     public async seedTelemetry() {
-        if (this.vehicleIds.length === 0) return;
+        if (this.vehicles.length === 0) return;
 
-        this.vehicleIds.forEach(async (vehicleId, idx) => {
+        this.vehicles.forEach(async (vehicle, idx) => {
             if (telemetryPaths[idx]) {
                 const path = telemetryPaths[idx];
                 if (!path) return;
@@ -58,9 +64,9 @@ export class TelemetrySeederService implements OnModuleInit {
                 const maxSpeed = 65.0;
                 const speed = parseFloat((Math.random() * (maxSpeed - minSpeed) + minSpeed).toFixed(1));
 
-                // console.log({ vehicleId, latitude, longitude });
                 const dto: CreateTelemetryDto = {
-                    vehicleId,
+                    vehicleId: vehicle.id,
+                    vehiclePlate: vehicle.plate,
                     latitude,
                     longitude,
                     speed,
@@ -70,7 +76,7 @@ export class TelemetrySeederService implements OnModuleInit {
     
                 try {
                     await this.telemetryService.createTelemetry(dto);
-                    this.logger.log(`Telemetry sent by vehicle ${vehicleId}`);
+                    this.logger.log(`Telemetry sent by vehicle ${vehicle.id}`);
                 } catch (err) {
                     this.logger.error("Error to create telemetry", err);
                 }

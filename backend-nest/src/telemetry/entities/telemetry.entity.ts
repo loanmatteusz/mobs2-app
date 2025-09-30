@@ -9,6 +9,9 @@ export class Telemetry {
     @Column({ name: 'vehicle_id', type: 'uuid' })
     vehicleId: string;
 
+    @Column({ name: 'vehicle_plate' })
+    vehiclePlate: string;
+
     @Column('decimal', { precision: 10, scale: 7 })
     latitude: number;
 

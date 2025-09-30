@@ -1,6 +1,7 @@
 export type Telemetry = {
-    id: number;
-    vehicleId: number;
+    id: string;
+    vehicleId: string;
+    vehiclePlate: string;
     latitude: number;
     longitude: number;
     speed: number;

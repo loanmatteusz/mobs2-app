@@ -37,7 +37,7 @@
 
       const content = `
         <div style="font-size:14px; color:black;">
-          <strong>Veículo:</strong> ${telemetry.vehicleId || '-'}<br/>
+          <strong>Veículo:</strong> ${telemetry.vehiclePlate || '-'}<br/>
           <strong>Velocidade:</strong> ${telemetry.speed ?? '-'} km/h<br/>
           <strong>Combustível:</strong> ${telemetry.fuel ?? '-'}%<br/>
           <strong>Última atualização:</strong> ${telemetry.timestamp ? new Date(telemetry.timestamp).toLocaleString("pt-BR") : '-'}
@@ -51,7 +51,7 @@
         marker = new google.maps.Marker({
           position,
           map,
-          title: `Veículo ${telemetry.vehicleId}`,
+          title: `Veículo ${telemetry.vehiclePlate}`,
         });
 
         const infoWindow = new google.maps.InfoWindow({ content });

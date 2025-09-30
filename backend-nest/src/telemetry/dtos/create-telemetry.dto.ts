@@ -1,21 +1,24 @@
-import { IsNumber, IsDateString } from 'class-validator';
+import { IsNumber, IsDateString, IsString } from 'class-validator';
 
 export class CreateTelemetryDto {
-    @IsNumber()
-    vehicleId: string;
+    @IsString()
+    public vehicleId: string;
+
+    @IsString()
+    public vehiclePlate: string;
 
     @IsNumber()
-    latitude: number;
+    public latitude: number;
 
     @IsNumber()
-    longitude: number;
+    public longitude: number;
 
     @IsNumber()
-    speed: number;
+    public speed: number;
 
     @IsNumber()
-    fuel: number;
+    public fuel: number;
 
     @IsDateString()
-    timestamp: string;
+    public timestamp: string;
 }

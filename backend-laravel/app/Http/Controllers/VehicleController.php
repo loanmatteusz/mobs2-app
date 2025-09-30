@@ -127,7 +127,7 @@ class VehicleController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $vehicles = Vehicle::all(['id']);
+        $vehicles = Vehicle::all(['id', 'plate']);
         return response()->json($vehicles);
     }
 }
