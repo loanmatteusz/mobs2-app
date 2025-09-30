@@ -2,7 +2,7 @@ import { Telemetry } from "@/types/telemetry";
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:3000/",
+    baseURL: "http://localhost:3000/api",
     headers: {
         "Content-Type": "application/json",
     },
@@ -29,6 +29,11 @@ export const telemetryService = {
 
     async getLastByVehicleId(vehicleId: number): Promise<PaginatedResult> {
         const response = await api.get(`/telemetry/${vehicleId}`, { params: { limit: 1} });
+        return response.data;
+    },
+
+    async lastestVehicleTelemetry(params?: Params): Promise<PaginatedResult> {
+        const response = await api.get(`/telemetry/lastest`, { params });
         return response.data;
     },
 };

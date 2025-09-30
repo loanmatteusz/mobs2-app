@@ -2,7 +2,7 @@ import { IsNumber, IsDateString } from 'class-validator';
 
 export class CreateTelemetryDto {
     @IsNumber()
-    vehicleId: number;
+    vehicleId: string;
 
     @IsNumber()
     latitude: number;

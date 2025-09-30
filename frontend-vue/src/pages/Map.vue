@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref, onMounted } from "vue"
+  import { ref, onMounted, onUnmounted } from "vue"
   import Card from "@/components/ui/card/Card.vue";
   import CardContent from "@/components/ui/card/CardContent.vue";
   import CardHeader from "@/components/ui/card/CardHeader.vue";
@@ -9,12 +9,13 @@
 
   const mapRef = ref<HTMLDivElement | null>(null)
   const mapError = ref(false);
+  const vehicleMarkers = ref<Record<string, google.maps.Marker>>({});
+  
   let map: google.maps.Map;
-  let vehicleMarker: google.maps.Marker;
+  let interval: number;
 
-  const vehicleId = 1;
-
-  const vehicleTelemetry = ref<Telemetry>();
+  const vehicleTelemetry = ref<Telemetry | null>(null);
+  const vehicles = ref<Telemetry[]>([]);
 
   function formatTimestamp(ts: string) {
     const date = new Date(ts)
@@ -28,56 +29,123 @@
     })
   }
 
-  async function updateVehiclePosition() {
-    const res = await telemetryService.getLastByVehicleId(vehicleId);
-    const latest = res.data[0];
-    vehicleTelemetry.value = latest;
-    if (!latest) return;
+  function upsertMarkers(telemetries: Telemetry[]) {
+    telemetries.forEach((telemetry) => {
 
-    const pos = {
-      lat: Number(latest.latitude),
-      lng: Number(latest.longitude)
-    };
+      const position = { lat: Number(telemetry.latitude), lng: Number(telemetry.longitude) };
+      let marker = vehicleMarkers.value[telemetry.vehicleId];
 
-    vehicleMarker.setPosition(pos);
-    map.panTo(pos);
+      const content = `
+        <div style="font-size:14px; color:black;">
+          <strong>Veículo:</strong> ${telemetry.vehicleId || '-'}<br/>
+          <strong>Velocidade:</strong> ${telemetry.speed ?? '-'} km/h<br/>
+          <strong>Combustível:</strong> ${telemetry.fuel ?? '-'}%<br/>
+          <strong>Última atualização:</strong> ${telemetry.timestamp ? new Date(telemetry.timestamp).toLocaleString("pt-BR") : '-'}
+        </div>
+      `;
+
+      if (marker) {
+        marker.setPosition(position);
+        (marker as any).infoWindow.setContent(content);
+      } else {
+        marker = new google.maps.Marker({
+          position,
+          map,
+          title: `Veículo ${telemetry.vehicleId}`,
+        });
+
+        const infoWindow = new google.maps.InfoWindow({ content });
+
+        marker.addListener("mouseover", () => {
+          infoWindow.setContent(content);
+          infoWindow.open(map, marker);
+        });
+
+        marker.addListener("mouseout", () => {
+          infoWindow.close();
+        });
+
+        (marker as any).infoWindow = infoWindow;
+
+        vehicleMarkers.value[telemetry.vehicleId] = marker;
+      }
+    });
   }
+
+  async function updateVehiclePosition() {
+    const response = await telemetryService.lastestVehicleTelemetry({ limit: 10 });
+    vehicleTelemetry.value = response.data[0];
+    vehicles.value = response.data;
+    upsertMarkers(vehicles.value);
+  }
+
 
   onMounted(() => {
     const key = import.meta.env.VITE_GOOGLE_MAPS_KEY
 
-    const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`
-    script.async = true
-    script.defer = true
-    script.onload = initMap;
-    script.onerror = () => {
-      mapError.value = true
-      console.error("Erro ao carregar Google Maps API")
+    if (!window.google || !window.google.maps) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}`;
+      script.async = true;
+      script.defer = true;
+      script.onload = initMap;
+      script.onerror = () => {
+        mapError.value = true
+        console.error("Erro ao carregar Google Maps API")
+      }
+      document.head.appendChild(script);
+    } else {
+      initMap();
     }
-    document.head.appendChild(script);
 
     async function initMap() {
       try {
-        const res = await telemetryService.getLastByVehicleId(vehicleId);
-        vehicleTelemetry.value = res.data[0];
+        const response = await telemetryService.lastestVehicleTelemetry({ limit: 10 });
+        vehicleTelemetry.value = response.data[0];
+        vehicles.value = response.data;
+
         map = new google.maps.Map(mapRef.value!, {
-          center: { lat: -18.8910, lng: -48.2850 },
-          zoom: 18,
-        })
-  
-        vehicleMarker = new google.maps.Marker({
-          position: { lat: -18.8910, lng: -48.2850 },
-          map,
-          title: `Veículo ${vehicleId}`,
+          center: { lat: -18.905528, lng: -48.276083 },
+          zoom: 14,
+          // styles: [
+          //   {
+          //     elementType: "geometry",
+          //     stylers: [{ color: "#242f3e" }]
+          //   },
+          //   {
+          //     elementType: "labels.text.stroke",
+          //     stylers: [{ color: "#242f3e" }]
+          //   },
+          //   {
+          //     elementType: "labels.text.fill",
+          //     stylers: [{ color: "#746855" }]
+          //   },
+          //   {
+          //     featureType: "road",
+          //     elementType: "geometry",
+          //     stylers: [{ color: "#38414e" }]
+          //   },
+          //   {
+          //     featureType: "water",
+          //     elementType: "geometry",
+          //     stylers: [{ color: "#17263c" }]
+          //   }
+          // ],
         });
   
-        setInterval(updateVehiclePosition, 1000);
+        upsertMarkers(vehicles.value);
+  
+        interval = setInterval(updateVehiclePosition, 5000);
       } catch (err) {
         mapError.value = true;
       }
     }
   });
+
+  onUnmounted(() => {
+    clearInterval(interval);
+  });
+
 </script>
 
 <template>

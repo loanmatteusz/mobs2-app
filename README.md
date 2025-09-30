@@ -10,3 +10,6 @@ A solução é composta por três serviços principais:
 - **Vue 3**: painel web para visualização dos veículos no mapa com histórico de posições.  
 
 O sistema é executado em containers Docker para garantir padronização e facilidade de instalação.
+
+## System Design
+![system-design](imgs/system-design.png)

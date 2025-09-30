@@ -67,7 +67,7 @@ export const createColumns = ({ onEdit, onDelete }: ColumnsOptions): ColumnDef<V
 				"div",
 				{ class: "flex justify-end" },
 				h(DropdownAction as any, {
-					vehicle,
+					item: vehicle,
 					onEdit: () => onEdit(vehicle),
 					onDelete: () => onDelete(vehicle.id),
 				})

@@ -1,12 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, Column, BeforeInsert, PrimaryColumn } from 'typeorm';
+import { v7 as uuidv7 } from 'uuid';
 
 @Entity('telemetries')
 export class Telemetry {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('uuid')
+    id: string;
 
-    @Column({ name: 'vehicle_id' })
-    vehicleId: number;
+    @Column({ name: 'vehicle_id', type: 'uuid' })
+    vehicleId: string;
 
     @Column('decimal', { precision: 10, scale: 7 })
     latitude: number;
@@ -22,4 +23,11 @@ export class Telemetry {
 
     @Column({ type: 'timestamp'})
     timestamp: Date;
+
+    @BeforeInsert()
+    public generateId() {
+        if (!this.id) {
+            this.id = uuidv7();
+        }
+    }
 }

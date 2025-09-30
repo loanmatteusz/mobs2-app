@@ -10,8 +10,14 @@ export class TelemetryController {
         private readonly telemetryService: TelemetryService,
     ) {}
 
+    @Get('lastest')
+    public listEachVehicle(@Query() paginationDto: PaginationDto) {
+        const { page, limit } = paginationDto;
+        return this.telemetryService.listLastVehiclesTelemetry(page, limit);
+    }
+
     @Get(':vehicleId')
-    public list(@Param('vehicleId') vehicleId: number, @Query() paginationDto: PaginationDto) {
+    public getByVehicleId(@Param('vehicleId') vehicleId: string, @Query() paginationDto: PaginationDto) {
         const { page, limit } = paginationDto;
         return this.telemetryService.getVehicleTelemetries(vehicleId, page, limit);
     }

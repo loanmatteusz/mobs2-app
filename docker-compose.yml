@@ -26,6 +26,20 @@ services:
       - ./db-data-test:/var/lib/postgresql/data
     networks:
       - mobs2-net
+  
+  db_telemetry:
+    image: postgres:15
+    container_name: telemetry-db
+    environment:
+      POSTGRES_USER: mobs2
+      POSTGRES_PASSWORD: mobs2
+      POSTGRES_DB: mobs2_telemetry
+    ports:
+      - "5431:5432"
+    volumes:
+      - ./db-telemetry-data:/var/lib/postgresql/data
+    networks:
+      - mobs2-net
 
   laravel:
     build: ./backend-laravel
@@ -47,6 +61,8 @@ services:
   nest:
     build: ./backend-nest
     container_name: mobs2-nest
+    depends_on:
+      - db_telemetry
     ports:
       - "3000:3000"
     networks:
