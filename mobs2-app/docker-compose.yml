@@ -1,9 +1,11 @@
 services:
-  frontend:
+  mobs2-app:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: vehicle-maneger-app
+      args:
+        VITE_GOOGLE_MAPS_KEY: maps-key
+        VITE_API_URL: http://localhost/api
+    container_name: mobs2-app
     ports:
-      - "8080:80"
+      - "5173:80"
     restart: always

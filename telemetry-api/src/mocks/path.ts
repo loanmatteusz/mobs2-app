@@ -92,5 +92,3 @@ export const telemetryPaths = {
     2: ringB,
     3: ringC,
 };
-
-// console.log({ telemetryPaths: JSON.stringify(telemetryPaths, null, 4) });

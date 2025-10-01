@@ -21,7 +21,6 @@
     loading.value = true;
     try {
       const { access_token: accessToken } = await authService.login({ email, password });
-      console.log({ accessToken });
       localStorage.setItem("access_token", accessToken);
       router.push('/maps');
     } catch (err) {

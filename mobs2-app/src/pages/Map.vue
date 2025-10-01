@@ -81,7 +81,7 @@
 
 
   onMounted(() => {
-    const key = import.meta.env.VITE_GOOGLE_MAPS_KEY
+    const key = import.meta.env.VITE_GOOGLE_MAPS_KEY;
 
     if (!window.google || !window.google.maps) {
       const script = document.createElement('script');

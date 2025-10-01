@@ -102,17 +102,21 @@ services:
     networks:
       - mobs2-net
 
-  # mobs2-app:
-  #   build: ./mobs2-app
-  #   container_name: mobs2-vue
-  #   environment:
-  #     VITE_GOOGLE_MAPS_KEY: chave_de_acesso_do_google_maps
-  #     VITE_API_URL: http://localhost/api
-  #   ports:
-  #     - "5173:5173"
-  #   networks:
-  #     - mobs2-net
-
+  mobs2-app:
+    build:
+      context: ./mobs2-app
+      args:
+        VITE_GOOGLE_MAPS_KEY: MAPS-KEY
+        VITE_API_URL: http://localhost/api
+    image: mobs2-app
+    container_name: mobs2-app
+    ports:
+      - "5173:80"
+    depends_on:
+      - nginx
+    networks:
+      - mobs2-net
+    restart: always
 
 networks:
   mobs2-net:

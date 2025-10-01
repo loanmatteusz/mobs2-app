@@ -1,9 +1,15 @@
 FROM node:20 AS build
 WORKDIR /app
+
+ARG VITE_GOOGLE_MAPS_KEY
+ARG VITE_API_URL
+
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run build
+
+RUN VITE_GOOGLE_MAPS_KEY=$VITE_GOOGLE_MAPS_KEY \
+    VITE_API_URL=$VITE_API_URL npm run build
 
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html

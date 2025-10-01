@@ -83,7 +83,7 @@
 			await fetchVehicles();
 			toast.success("Vehicle updated successfully");
 		} catch (error) {
-			console.log({ error });
+			console.error({ error });
 			toast.error(`Vehicle update failed`);
 		}
 	}
