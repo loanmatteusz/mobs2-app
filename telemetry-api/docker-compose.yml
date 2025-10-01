@@ -1,0 +1,37 @@
+services:
+  telemetry-db:
+    image: postgres:15
+    container_name: telemetry-db
+    environment:
+      POSTGRES_USER: mobs2
+      POSTGRES_PASSWORD: mobs2
+      POSTGRES_DB: mobs2_telemetry
+    ports:
+      - "5431:5432"
+    volumes:
+      - ./db-telemetry-data:/var/lib/postgresql/data
+    networks:
+      - mobs2-net
+
+  telemetry-api:
+    build: .
+    image: telemetry-api
+    container_name: telemetry-api
+    environment:
+      LARAVEL_BASE_URL: http://localhost:8000
+      INTERNAL_API_SECRET: batmansecret
+      DB_HOST: telemetry-db
+      DB_PORT: 5432
+      DB_USERNAME: mobs2
+      DB_PASSWORD: mobs2
+      DB_NAME: mobs2_telemetry
+    depends_on:
+      - telemetry-db
+    ports:
+      - "3000:3000"
+    networks:
+      - mobs2-net
+
+networks:
+  mobs2-net:
+    driver: bridge

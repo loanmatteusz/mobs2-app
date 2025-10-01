@@ -41,7 +41,7 @@ export class TelemetrySeederService implements OnModuleInit {
             this.logger.log(`Vehicle IDs loaded: ${this.vehicles.map(v => v.id).join(', ')}`);
         } catch(err) {
             this.logger.error('Error to find vehicleIds of Laravel API', err.message);
-            this.vehicles = [{id: '01999728-bcfa-7060-a49f-4e4fd2932c03', plate: "BRA1010"}];
+            // this.vehicles = [{id: '01999728-bcfa-7060-a49f-4e4fd2932c03', plate: "BRA1010"}];
         }
     }
 
