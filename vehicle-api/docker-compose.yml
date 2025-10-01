@@ -1,0 +1,60 @@
+services:
+  vehicle-db:
+    image: postgres:15
+    container_name: vehicle-db
+    environment:
+      POSTGRES_USER: mobs2
+      POSTGRES_PASSWORD: mobs2
+      POSTGRES_DB: mobs2
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    networks:
+      - mobs2-net
+
+#   vehicle_db_test:
+#     image: postgres:15
+#     container_name: vehicle-db-test
+#     environment:
+#       POSTGRES_USER: mobs2_test
+#       POSTGRES_PASSWORD: mobs2_test
+#       POSTGRES_DB: mobs2_test
+#     ports:
+#       - "5433:5432"
+#     volumes:
+#       - ./db-data-test:/var/lib/postgresql/data
+#     networks:
+#       - mobs2-net
+
+  vehicle-api:
+    build: .
+    image: mobs2-laravel
+    container_name: mobs2-laravel
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_KEY: base64:C4xNY0dqS/BueL89y1O4Fg6peGuss15fwG3KBonP26I=
+      DB_CONNECTION: pgsql
+      DB_HOST: vehicle-db
+      DB_PORT: 5432
+      DB_DATABASE: mobs2
+      DB_USERNAME: mobs2
+      DB_PASSWORD: mobs2
+      JWT_SECRET: XYOXfIWQMQ2hmnvdoULLTW0qkwR0AMYnSLtSJXiZMmZd5jpiMycUdutbAnalBu0a
+      INTERNAL_API_SECRET: batmansecret
+      VITE_APP_NAME: Laravel
+      CACHE_DRIVER: array
+    depends_on:
+      - vehicle-db
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+    networks:
+      - mobs2-net
+
+networks:
+  mobs2-net:
+    driver: bridge
