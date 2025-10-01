@@ -25,15 +25,16 @@ type RegisterResponse = {
     expires_in: number;
 }
 
+
 export const authService = { 
     async login(data: Login): Promise<LoginResponse> {
-        const response = await api.post<LoginResponse>("/login", data);
+        const response = await api.post<LoginResponse>("auth/login", data);
         return response.data;
     },
 
     async register(data: Register): Promise<RegisterResponse> {
         console.log({ data })
-        const response = await api.post<RegisterResponse>("/register", data);
+        const response = await api.post<RegisterResponse>("auth/register", data);
         return response.data;
     },
 };

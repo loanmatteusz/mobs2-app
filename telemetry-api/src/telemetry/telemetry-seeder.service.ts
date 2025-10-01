@@ -1,8 +1,8 @@
+import axios from "axios";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { CreateTelemetryDto } from "./dtos/create-telemetry.dto";
 import { TelemetryService } from "./telemetry.service";
-import axios from "axios";
 import { ConfigService } from "@nestjs/config";
 import { telemetryPaths } from "src/mocks/path";
 
@@ -24,11 +24,10 @@ export class TelemetrySeederService implements OnModuleInit {
     ) { }
 
     public async onModuleInit() {
-        await this.loadVehicleIds();
+        await this.loadVehicles();
     }
 
-    
-    private async loadVehicleIds() {
+    private async loadVehicles() {
         try{
             const laravelUrl = this.configService.get<string>('LARAVEL_BASE_URL');
             const secret = this.configService.get<string>('INTERNAL_API_SECRET');
@@ -38,7 +37,7 @@ export class TelemetrySeederService implements OnModuleInit {
                 }
             });
             this.vehicles = response.data.map((v: Vehicle) => ({ id: v.id, plate: v.plate }));
-            this.logger.log(`Vehicle IDs loaded: ${this.vehicles.map(v => v.id).join(', ')}`);
+            this.logger.log(`Vehicle IDs loaded: ${this.vehicles.map(v => v.plate).join(', ')}`);
         } catch(err) {
             this.logger.error('Error to find vehicleIds of Laravel API', err.message);
             // this.vehicles = [{id: '01999728-bcfa-7060-a49f-4e4fd2932c03', plate: "BRA1010"}];
@@ -47,6 +46,7 @@ export class TelemetrySeederService implements OnModuleInit {
 
     @Interval(5000)
     public async seedTelemetry() {
+        await this.loadVehicles();
         if (this.vehicles.length === 0) return;
 
         this.vehicles.forEach(async (vehicle, idx) => {
@@ -76,7 +76,7 @@ export class TelemetrySeederService implements OnModuleInit {
     
                 try {
                     await this.telemetryService.createTelemetry(dto);
-                    this.logger.log(`Telemetry sent by vehicle ${vehicle.id}`);
+                    this.logger.log(`Telemetry sent by vehicle ${vehicle.plate}`);
                 } catch (err) {
                     this.logger.error("Error to create telemetry", err);
                 }

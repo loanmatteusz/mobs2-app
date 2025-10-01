@@ -1,5 +1,5 @@
 services:
-  vehicle_db:
+  vehicle-db:
     image: postgres:15
     container_name: vehicle-db
     environment:
@@ -27,7 +27,35 @@ services:
     networks:
       - mobs2-net
 
-  telemetry_db:
+  vehicle-api:
+    build: ./vehicle-api
+    image: vehicle-api
+    container_name: mobs2-laravel
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_KEY: base64:C4xNY0dqS/BueL89y1O4Fg6peGuss15fwG3KBonP26I=
+      DB_CONNECTION: pgsql
+      DB_HOST: vehicle-db
+      DB_PORT: 5432
+      DB_DATABASE: mobs2
+      DB_USERNAME: mobs2
+      DB_PASSWORD: mobs2
+      JWT_SECRET: XYOXfIWQMQ2hmnvdoULLTW0qkwR0AMYnSLtSJXiZMmZd5jpiMycUdutbAnalBu0a
+      INTERNAL_API_SECRET: batmansecret
+      VITE_APP_NAME: Laravel
+      CACHE_DRIVER: array
+    depends_on:
+      - vehicle-db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./vehicle-api:/var/www
+      - ./vehicle-api/vendor:/var/www/vendor
+    networks:
+      - mobs2-net
+
+  telemetry-db:
     image: postgres:15
     container_name: telemetry-db
     environment:
@@ -41,70 +69,50 @@ services:
     networks:
       - mobs2-net
 
-  vehicle-api:
-    build: ./vehicle-api
-    container_name: mobs2-laravel
-    environment:
-      APP_ENV: local
-      APP_DEBUG: "true"
-      APP_KEY: base64:C4xNY0dqS/BueL89y1O4Fg6peGuss15fwG3KBonP26I=
-      DB_CONNECTION: pgsql
-      DB_HOST: vehicle_db
-      DB_PORT: 5432
-      DB_DATABASE: mobs2
-      DB_USERNAME: mobs2
-      DB_PASSWORD: mobs2
-      JWT_SECRET: XYOXfIWQMQ2hmnvdoULLTW0qkwR0AMYnSLtSJXiZMmZd5jpiMycUdutbAnalBu0a
-      INTERNAL_API_SECRET: batmansecret
-      VITE_APP_NAME: Laravel
-    depends_on:
-      - vehicle_db
-    ports:
-      - "8000:8000"
-    networks:
-      - mobs2-net
-
   telemetry-api:
     build: ./telemetry-api
-    container_name: mobs2-nest
+    image: telemetry-api
+    container_name: telemetry-api
     environment:
       LARAVEL_BASE_URL: http://vehicle-api:8000
       INTERNAL_API_SECRET: batmansecret
-      DB_HOST: telemetry_db
-      DB_PORT: 5431
+      DB_HOST: telemetry-db
+      DB_PORT: 5432
       DB_USERNAME: mobs2
       DB_PASSWORD: mobs2
       DB_NAME: mobs2_telemetry
     depends_on:
-      - telemetry_db
+      - telemetry-db
+      - vehicle-api
     ports:
       - "3000:3000"
     networks:
       - mobs2-net
-
-  mobs2-app:
-    build: ./mobs2-app
-    container_name: mobs2-vue
-    environment:
-      VITE_GOOGLE_MAPS_KEY: chave_de_acesso_do_google_maps
-      VITE_API_URL: http://localhost/api
-    ports:
-      - "5173:5173"
-    networks:
-      - mobs2-net
-
+  
   nginx:
     image: nginx:alpine
     container_name: api-gateway
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - vehicle-api
       - telemetry-api
     networks:
       - mobs2-net
+
+  # mobs2-app:
+  #   build: ./mobs2-app
+  #   container_name: mobs2-vue
+  #   environment:
+  #     VITE_GOOGLE_MAPS_KEY: chave_de_acesso_do_google_maps
+  #     VITE_API_URL: http://localhost/api
+  #   ports:
+  #     - "5173:5173"
+  #   networks:
+  #     - mobs2-net
+
 
 networks:
   mobs2-net:

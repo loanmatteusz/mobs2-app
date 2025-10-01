@@ -15,7 +15,7 @@
 		useVueTable,
 	} from "@tanstack/vue-table";
 	import { ChevronDown } from "lucide-vue-next";
-	import { computed, ref, watch } from "vue";
+	import { computed, onMounted, ref, watch } from "vue";
 	import { useToast } from "vue-toastification";
 	import { createColumns } from "@/components/vehicles/columns";
 	import DataTable from "@/components/vehicles/data-table.vue";
@@ -165,6 +165,10 @@
 				return expanded.value;
 			},
 		},
+	});
+
+	onMounted(() => {
+		fetchVehicles();
 	});
 </script>
 
