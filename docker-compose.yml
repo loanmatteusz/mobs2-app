@@ -12,6 +12,11 @@ services:
       - ./db-data:/var/lib/postgresql/data
     networks:
       - mobs2-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mobs2 -d mobs2"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   vehicle_db_test:
     image: postgres:15
@@ -30,7 +35,7 @@ services:
   vehicle-api:
     build: ./vehicle-api
     image: vehicle-api
-    container_name: mobs2-laravel
+    container_name: vehicle-api
     environment:
       APP_ENV: local
       APP_DEBUG: "true"
@@ -45,13 +50,19 @@ services:
       INTERNAL_API_SECRET: batmansecret
       VITE_APP_NAME: Laravel
       CACHE_DRIVER: array
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     depends_on:
       - vehicle-db
     ports:
       - "8000:8000"
     volumes:
       - ./vehicle-api:/var/www
-      - ./vehicle-api/vendor:/var/www/vendor
+      - composer-cache:/var/www/.composer/cache
+      - vehicle-api-vendor:/var/www/vendor
     networks:
       - mobs2-net
 
@@ -68,6 +79,11 @@ services:
       - ./db-telemetry-data:/var/lib/postgresql/data
     networks:
       - mobs2-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mobs2 -d mobs2_telemetry"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   telemetry-api:
     build: ./telemetry-api
@@ -82,13 +98,15 @@ services:
       DB_PASSWORD: mobs2
       DB_NAME: mobs2_telemetry
     depends_on:
-      - telemetry-db
-      - vehicle-api
+      vehicle-api:
+        condition: service_healthy
+      telemetry-db:
+        condition: service_healthy
     ports:
       - "3000:3000"
     networks:
       - mobs2-net
-  
+
   nginx:
     image: nginx:alpine
     container_name: api-gateway
@@ -121,3 +139,7 @@ services:
 networks:
   mobs2-net:
     driver: bridge
+
+volumes:
+  composer-cache:
+  vehicle-api-vendor:
